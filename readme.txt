@@ -1,9 +1,9 @@
 === Display Posts - Easy lists, grids, navigation, and more ===
-Contributors: cultivatewp, billerickson
+Contributors: cultivatewp, billerickson, qndrs
 Tags: shortcode, pages, posts, page, query, display, list
 Requires at least: 3.0
 Tested up to: 6.3
-Stable tag: 3.0.2
+Stable tag: 3.1.0
 
 Add a listing of content on your website using a simple shortcode. Filter the results by category, author, and more.
 

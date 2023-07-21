@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file, formatted via [this recommendation](http://keepachangelog.com/).
 
+### [3.1.0]
+#### Added
+* An extended version of the Display Posts plugin with additional administration panel settings. Features include enabling/disabling the $category_display variable to 'link', controlling link text based on keywords in post titles, and configurable $atts['wrapper'] and $atts['wrapper_class'] settings.
+
 ### [3.0.2]
 #### Added
 * Added `pre_display_posts_shortcode_output` filter before shortcode runs, used for transient caching, see #210
