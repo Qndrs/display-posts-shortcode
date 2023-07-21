@@ -67,6 +67,39 @@ function display_posts_keywords_callback() {
     echo "<input type='text' name='display_posts_keywords' value='" . esc_attr($keywords) . "' placeholder='Enter keywords separated by commas'>";
 }
 
+// Register our new setting for wrapper class
+function display_posts_register_wrapper_class_setting() {
+    register_setting('display_posts_settings_group', 'display_posts_wrapper_class');
+    // Add a field for the wrapper class
+    add_settings_field('wrapper-class', 'Wrapper Class', 'display_posts_wrapper_class_callback', 'display-posts-settings-page', 'display_posts_main_section');
+}
+add_action('admin_init', 'display_posts_register_wrapper_class_setting');
+
+// Callback to display the text field for our wrapper class setting
+function display_posts_wrapper_class_callback() {
+    $wrapper_class = get_option('display_posts_wrapper_class');
+    echo "<input type='text' name='display_posts_wrapper_class' value='" . esc_attr($wrapper_class) . "' placeholder='Enter classes separated by spaces'>";
+}
+// Register our new setting for wrapper element
+function display_posts_register_wrapper_setting() {
+    register_setting('display_posts_settings_group', 'display_posts_wrapper');
+
+    // Add a field for the wrapper element
+    add_settings_field('wrapper', 'Wrapper Element', 'display_posts_wrapper_callback', 'display-posts-settings-page', 'display_posts_main_section');
+}
+add_action('admin_init', 'display_posts_register_wrapper_setting');
+
+// Callback to display the dropdown for our wrapper element setting
+function display_posts_wrapper_callback() {
+    $selected_wrapper = get_option('display_posts_wrapper');
+    $options = array('ul', 'ol', 'div');
+    echo "<select name='display_posts_wrapper'>";
+    foreach ($options as $option) {
+        echo "<option value='" . esc_attr($option) . "'" . selected($selected_wrapper, $option, false) . ">" . esc_html($option) . "</option>";
+    }
+    echo "</select>";
+}
+
 
 // Callback for the settings page content
 function display_posts_settings_page_callback() {
@@ -223,7 +256,11 @@ function be_display_posts_shortcode( $atts ) {
 	$taxonomy              = sanitize_key( $atts['taxonomy'] );
 	$time                  = sanitize_text_field( $atts['time'] );
 	$shortcode_title       = sanitize_text_field( $atts['title'] );
-	$wrapper               = sanitize_text_field( $atts['wrapper'] );
+    // settings for wrapper element and class
+    $atts['wrapper_class'] = get_option('display_posts_wrapper_class', $atts['wrapper_class']); // Use the user's choice if available, else keep the default
+    $atts['wrapper'] = get_option('display_posts_wrapper', $atts['wrapper']); // Use the user's choice if available, else keep the default
+    // continue sanitization
+    $wrapper               = sanitize_text_field( $atts['wrapper'] );
 	$wrapper_class         = array_map( 'sanitize_html_class', explode( ' ', $atts['wrapper_class'] ) );
 
 	if ( ! empty( $wrapper_class ) ) {
@@ -547,11 +584,12 @@ function be_display_posts_shortcode( $atts ) {
         $keywords_array = array_map('trim', explode(',', $keywords));
 
         $link_text = get_the_title(); // Assuming $post_id is the ID of the post you're linking to
-
-        foreach ($keywords_array as $keyword) {
-            if (stripos($link_text, $keyword) !== false) {
-                $link_text = $keyword;
-                break; // Exit the loop once the first keyword is found
+        if(strlen($keywords_array[0] > 1)) {
+            foreach ($keywords_array as $keyword) {
+                if (stripos($link_text, $keyword) !== false) {
+                    $link_text = $keyword;
+                    break; // Exit the loop once the first keyword is found
+                }
             }
         }
         // Use $link_text as the anchor text when creating the link
