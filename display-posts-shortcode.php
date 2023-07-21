@@ -589,7 +589,7 @@ function be_display_posts_shortcode( $atts ) {
         $keywords_array = array_map('trim', explode(',', $keywords));
 
         $link_text = get_the_title(); // Assuming $post_id is the ID of the post you're linking to
-        if(strlen($keywords_array[0] > 1)) {
+        if((isset($keywords_array[0]) AND strlen($keywords_array[0]) < 1)  OR count($keywords_array) > 1) { // PHP < 8 stuff
             foreach ($keywords_array as $keyword) {
                 if (stripos($link_text, $keyword) !== false) {
                     $link_text = $keyword;
