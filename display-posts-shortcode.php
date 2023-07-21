@@ -31,6 +31,42 @@ add_shortcode( 'display-posts', 'be_display_posts_shortcode' );
  * @param array $atts Shortcode attributes.
  * @return string
  */
+// Register our settings
+function display_posts_register_settings() {
+    register_setting('display_posts_settings_group', 'display_posts_category_display_link');
+    add_settings_section('display_posts_main_section', 'Display Posts Main Settings', 'display_posts_main_settings_callback', 'display-posts-settings-page');
+    add_settings_field('category-display-link', 'Enable Category Display as Link', 'display_posts_category_display_callback', 'display-posts-settings-page', 'display_posts_main_section');
+}
+add_action('admin_init', 'display_posts_register_settings');
+
+// Callback for the settings section
+function display_posts_main_settings_callback() {
+    echo '<p>Main settings for Display Posts plugin.</p>';
+}
+
+// Callback to display the checkbox for our new setting
+function display_posts_category_display_callback() {
+    $setting = get_option('display_posts_category_display_link');
+    echo "<input type='checkbox' name='display_posts_category_display_link' " . checked(1, $setting, false) . " value='1'>";
+}
+function display_posts_settings_page() {
+    add_submenu_page('options-general.php', 'Display Posts Settings', 'Display Posts', 'manage_options', 'display-posts-settings-page', 'display_posts_settings_page_callback');
+}
+add_action('admin_menu', 'display_posts_settings_page');
+
+// Callback for the settings page content
+function display_posts_settings_page_callback() {
+    ?>
+    <div class="wrap">
+        <h2>Display Posts Settings</h2>
+        <form method="post" action="options.php">
+            <?php   settings_fields('display_posts_settings_group');
+                    do_settings_sections('display-posts-settings-page');
+                    submit_button(); ?>
+        </form>
+    </div>
+    <?php
+}
 
 function be_display_posts_shortcode( $atts ) {
 
@@ -577,6 +613,12 @@ function be_display_posts_shortcode( $atts ) {
 			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
 				foreach ( $terms as $term ) {
                     // display category as link or without link depending on setting
+                    $enable_category_display_link = get_option('display_posts_category_display_link');
+                    if ($enable_category_display_link) {
+                        $category_display = 'link';
+                    } else {
+                        $category_display = 'true' === $atts['category_display'] ? 'category' : sanitize_text_field($atts['category_display']);
+                    }
                     if($category_display == 'link') {
                         $term_output[] = '<a href="' . get_term_link($term, $category_display) . '">' . $term->name . '</a>';
                     } else {
