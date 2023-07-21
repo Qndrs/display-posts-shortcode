@@ -53,6 +53,20 @@ function display_posts_settings_page() {
     add_submenu_page('options-general.php', 'Display Posts Settings', 'Display Posts', 'manage_options', 'display-posts-settings-page', 'display_posts_settings_page_callback');
 }
 add_action('admin_menu', 'display_posts_settings_page');
+// shorten linktext to set words in administration panel
+// Register our new setting for keywords
+function display_posts_register_keyword_setting() {
+    register_setting('display_posts_settings_group', 'display_posts_keywords');
+    // Add a field for the keywords
+    add_settings_field('keywords', 'Link Text Keywords', 'display_posts_keywords_callback', 'display-posts-settings-page', 'display_posts_main_section');
+}
+add_action('admin_init', 'display_posts_register_keyword_setting');
+// Callback to display the text field for our keywords setting
+function display_posts_keywords_callback() {
+    $keywords = get_option('display_posts_keywords');
+    echo "<input type='text' name='display_posts_keywords' value='" . esc_attr($keywords) . "' placeholder='Enter keywords separated by commas'>";
+}
+
 
 // Callback for the settings page content
 function display_posts_settings_page_callback() {
@@ -528,13 +542,26 @@ function be_display_posts_shortcode( $atts ) {
 		$author  = '';
 		$excerpt = '';
 		$content = '';
+        // sanitize linktext to given keywords
+        $keywords = get_option('display_posts_keywords');
+        $keywords_array = array_map('trim', explode(',', $keywords));
 
-		if ( $include_title && $include_link ) {
+        $link_text = get_the_title(); // Assuming $post_id is the ID of the post you're linking to
+
+        foreach ($keywords_array as $keyword) {
+            if (stripos($link_text, $keyword) !== false) {
+                $link_text = $keyword;
+                break; // Exit the loop once the first keyword is found
+            }
+        }
+        // Use $link_text as the anchor text when creating the link
+
+        if ( $include_title && $include_link ) {
 			/** This filter is documented in wp-includes/link-template.php */
-			$title = '<a class="title" href="' . apply_filters( 'the_permalink', get_permalink() ) . '">' . get_the_title() . '</a>';
+			$title = '<a class="title" href="' . apply_filters( 'the_permalink', get_permalink() ) . '">' . $link_text . '</a>';
 
 		} elseif ( $include_title ) {
-			$title = '<span class="title">' . get_the_title() . '</span>';
+			$title = '<span class="title">' . $link_text . '</span>';
 
 		} else {
 			$title = '';
