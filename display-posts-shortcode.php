@@ -3,7 +3,7 @@
  * Plugin Name: Display Posts Extended
  * Plugin URI: https://displayposts.com
  * Description: An extended version of the Display Posts plugin with additional administration panel settings. Features include enabling/disabling the $category_display variable to 'link', controlling link text based on keywords in post titles, and configurable $atts['wrapper'] and $atts['wrapper_class'] settings.
- * Version: 3.1.0
+ * Version: 3.2.0
  * Original Author: Bill Erickson
  * Author: Qndrs
  * Author URI: https://qndrs.training
@@ -17,7 +17,7 @@
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @package Display Posts Extended
- * @version 3.1.0
+ * @version 3.2.0
  * @author Robert Kuunders <r@qndrs.nl>
  * @contributor Bill Erickson <bill@billerickson.net>
  * @copyright Copyright (c) 2021, [Your Name]
@@ -199,7 +199,8 @@ function be_display_posts_shortcode( $atts ) {
 			'wrapper'               => 'ul',
 			'wrapper_class'         => 'display-posts-listing',
 			'wrapper_id'            => false,
-		),
+            'link_text_by_category' => 'false',
+        ),
 		$atts,
 		'display-posts'
 	);
@@ -598,7 +599,18 @@ function be_display_posts_shortcode( $atts ) {
             }
         }
         // Use $link_text as the anchor text when creating the link
-
+        // Fetch categories if needed
+        if ( 'true' === $atts['link_text_by_category'] ) {
+            $categories = get_the_category();
+            if ( ! empty($categories) ) {
+            $category_names = array_map(function($cat) {
+                return $cat->name;
+            }, $categories);
+            $link_text = implode(', ', $category_names);
+            } else {
+                $link_text = 'mixed';  // Default text if no category is assigned
+            }
+        }
         if ( $include_title && $include_link ) {
 			/** This filter is documented in wp-includes/link-template.php */
 			$title = '<a class="title" href="' . apply_filters( 'the_permalink', get_permalink() ) . '">' . $link_text . '</a>';

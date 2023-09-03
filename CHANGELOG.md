@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file, formatted via [this recommendation](http://keepachangelog.com/).
 
+### [3.2.0]
+#### Added
+* link_text_by_category added as attribute. Defaults to false. If no category is assigned the linktext defaults to 'mixed'
+
 ### [3.1.0]
 #### Added
 * An extended version of the Display Posts plugin with additional administration panel settings. Features include enabling/disabling the $category_display variable to 'link', controlling link text based on keywords in post titles, and configurable $atts['wrapper'] and $atts['wrapper_class'] settings.
